@@ -1,9 +1,3 @@
-import marked from 'marked';
-import createDOMPurify  from 'dompurify';
-import { JSDOM } from 'jsdom';
-
-import { ipcRenderer } from 'electron';
-
 const markdownView = document.querySelector('#markdown');
 const htmlView = document.querySelector('#html');
 const newFileButton = document.querySelector('#new-file');
@@ -14,38 +8,92 @@ const saveHtmlButton = document.querySelector('#save-html');
 const showFileButton = document.querySelector('#show-file');
 const openInDefaultButton = document.querySelector('#open-in-default');
 
-const windowEmulator = new JSDOM('').window;
-const DOMPurify = createDOMPurify((windowEmulator as unknown as Window ));
+declare const api: any;
+
+let filePath: string | null = null;
+let originalContent = '';
+let currentContent = '';
 
 const renderMarkdownToHtml = (markdown: string) => {
-  const clean = DOMPurify.sanitize(markdown);
-  htmlView!.innerHTML = marked(clean);
+    const clean = api.sanitize(markdown);
+    (htmlView as Element).innerHTML = api.marked(clean);
 };
 
-markdownView!.addEventListener('keyup', (event) => {
-  const currentContent = (event.target as HTMLTextAreaElement).value;
-  renderMarkdownToHtml(currentContent);
+markdownView?.addEventListener('keyup', (event) => {
+    currentContent = api.eolAuto((event.target as HTMLTextAreaElement).value);
+    renderMarkdownToHtml(currentContent);
+    updateUserInterface(originalContent !== currentContent);
 });
 
-openFileButton!.addEventListener('click', () => {
-  ipcRenderer.invoke('get-file-from-user');
+openFileButton?.addEventListener('click', () => {
+    api.send('get-file-from-user');
 });
 
-newFileButton!.addEventListener('click', () => {
-  ipcRenderer.invoke('on-new-file');
+newFileButton?.addEventListener('click', () => {
+    api.send('on-new-file');
 });
 
-ipcRenderer.on('file-opened', (event: any, filePath: string, content: string) => {
+saveHtmlButton?.addEventListener('click', () => {
+    const filters = [
+        {name: 'HTML Files', extensions: ['html', 'htm']},
+        {name: 'All Files', extensions: ['*']}
+    ];
+    const data = {
+        filePath: undefined,
+        filters,
+        content: htmlView?.innerHTML
+    }
+    api.send('save-file', data);
+});
+
+saveMarkdownButton?.addEventListener('click', () => {
+    const filters = [
+        {name: 'Markdown filePaths', extensions: ['md', 'markdown']},
+        {name: 'All Files', extensions: ['*']}
+    ];
+    const data = {
+        filePath,
+        filters,
+        content: (markdownView as HTMLTextAreaElement).value
+    }
+    api.send('save-file', data);
+});
+
+revertButton?.addEventListener('click', () => {
+    (markdownView as HTMLTextAreaElement).value = originalContent;
+    renderMarkdownToHtml(originalContent);
+    updateUserInterface(false);
+});
+
+api.receive('file-opened', (pathToFile: string, content: string) => {
+    renderFile(pathToFile, content);
+});
+
+api.receive('file-changed', (filePath: string, content: string) => {
+    renderFile(filePath, content);
+});
+
+const renderFile = (pathToFile: string, content: string) => {
+    filePath = pathToFile;
+    originalContent = content;
+
     (markdownView as HTMLTextAreaElement).value = content;
-  renderMarkdownToHtml(content);
-});
+    renderMarkdownToHtml(content);
 
-// ipcRenderer.on('on-window-focus', (event, windowId) => {
-//   console.log('in renderer onWindowFocus', windowId)
-//   focussedWindowId = windowId;
-// });
+    updateUserInterface(false);
+};
 
-// ipcRenderer.on('on-window-blur', () => {
-//   console.log('in renderer onWindowBlur')
-//   focussedWindow = null;
-// });
+const updateUserInterface = (isEdited: boolean) => {
+    let title = 'Geodan Knutsel TextEditor';
+    if (filePath) {
+        title = `${api.path.basename(filePath)} - ${title}`;
+    }
+    if (isEdited) {
+        title = `${title} (Edited)`;
+    }
+
+    const data = {title, isEdited};
+    api.send('update-ui', data);
+    (saveMarkdownButton as HTMLButtonElement).disabled = !isEdited;
+    (revertButton as HTMLButtonElement).disabled = !isEdited;
+};
