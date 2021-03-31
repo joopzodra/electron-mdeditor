@@ -1,12 +1,10 @@
-const markdownView = document.querySelector('#markdown');
+const textarea = document.querySelector('#textarea');
 const htmlView = document.querySelector('#html');
 const newFileButton = document.querySelector('#new-file');
 const openFileButton = document.querySelector('#open-file');
-const saveMarkdownButton = document.querySelector('#save-markdown');
+const saveFileButton = document.querySelector('#save-file');
 const revertButton = document.querySelector('#revert');
-const saveHtmlButton = document.querySelector('#save-html');
 const showFileButton = document.querySelector('#show-file');
-const openInDefaultButton = document.querySelector('#open-in-default');
 
 declare const api: any;
 
@@ -19,7 +17,7 @@ const renderMarkdownToHtml = (markdown: string) => {
     (htmlView as Element).innerHTML = api.marked(clean);
 };
 
-markdownView?.addEventListener('keyup', (event) => {
+textarea?.addEventListener('keyup', (event) => {
     currentContent = api.eolAuto((event.target as HTMLTextAreaElement).value);
     renderMarkdownToHtml(currentContent);
     updateUserInterface(originalContent !== currentContent);
@@ -33,20 +31,17 @@ newFileButton?.addEventListener('click', () => {
     api.send('on-new-file');
 });
 
-saveHtmlButton?.addEventListener('click', () => {
-    const filters = [
-        {name: 'HTML Files', extensions: ['html', 'htm']},
-        {name: 'All Files', extensions: ['*']}
-    ];
-    const data = {
-        filePath: undefined,
-        filters,
-        content: htmlView?.innerHTML
-    }
-    api.send('save-file', data);
+saveFileButton?.addEventListener('click', () => {
+    saveFile();
 });
 
-saveMarkdownButton?.addEventListener('click', () => {
+revertButton?.addEventListener('click', () => {
+    (textarea as HTMLTextAreaElement).value = originalContent;
+    renderMarkdownToHtml(originalContent);
+    updateUserInterface(false);
+});
+
+const saveFile = () => {
     const filters = [
         {name: 'Markdown filePaths', extensions: ['md', 'markdown']},
         {name: 'All Files', extensions: ['*']}
@@ -54,37 +49,23 @@ saveMarkdownButton?.addEventListener('click', () => {
     const data = {
         filePath,
         filters,
-        content: (markdownView as HTMLTextAreaElement).value
+        content: (textarea as HTMLTextAreaElement).value
     }
     api.send('save-file', data);
-});
-
-revertButton?.addEventListener('click', () => {
-    (markdownView as HTMLTextAreaElement).value = originalContent;
-    renderMarkdownToHtml(originalContent);
-    updateUserInterface(false);
-});
-
-api.receive('file-opened', (pathToFile: string, content: string) => {
-    renderFile(pathToFile, content);
-});
-
-api.receive('file-changed', (filePath: string, content: string) => {
-    renderFile(filePath, content);
-});
+};
 
 const renderFile = (pathToFile: string, content: string) => {
     filePath = pathToFile;
     originalContent = content;
 
-    (markdownView as HTMLTextAreaElement).value = content;
+    (textarea as HTMLTextAreaElement).value = content;
     renderMarkdownToHtml(content);
 
     updateUserInterface(false);
 };
 
 const updateUserInterface = (isEdited: boolean) => {
-    let title = 'Geodan Knutsel TextEditor';
+    let title = api.appName;
     if (filePath) {
         title = `${api.path.basename(filePath)} - ${title}`;
     }
@@ -94,6 +75,18 @@ const updateUserInterface = (isEdited: boolean) => {
 
     const data = {title, isEdited};
     api.send('update-ui', data);
-    (saveMarkdownButton as HTMLButtonElement).disabled = !isEdited;
+    (saveFileButton as HTMLButtonElement).disabled = !isEdited;
     (revertButton as HTMLButtonElement).disabled = !isEdited;
 };
+
+api.receive('file-opened', (pathToFile: string, content: string) => {
+    renderFile(pathToFile, content);
+});
+
+api.receive('file-changed', (filePath: string, content: string) => {
+    renderFile(filePath, content);
+});
+
+api.receive('save-file', () => {
+    saveFile();
+});

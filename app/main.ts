@@ -1,6 +1,7 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Menu } from 'electron'
 import path from 'path';
 import fs from 'fs';
+import appMenu from './app-menu';
 
 const windows = new Map();
 const openFiles = new Map();
@@ -17,6 +18,7 @@ app.on('will-finish-launching', () => {
 });
 
 app.whenReady().then(() => {
+    Menu.setApplicationMenu(appMenu);
     createWindow()
 
     app.on('activate', (event: any, hasVisibleWindows: boolean) => {
@@ -138,12 +140,8 @@ const stopWatchingFile = (targetWindow: BrowserWindow) => {
     }
 };
 
-ipcMain.on('on-new-file', () => {
-    createWindow();
-});
-
-ipcMain.on('get-file-from-user', () => {
-    const targetWindow = BrowserWindow.getFocusedWindow();
+const getFileFromUser = (focussedWindow?: BrowserWindow) => {
+    const targetWindow = focussedWindow || BrowserWindow.getFocusedWindow();
 
     if (windows.get(targetWindow?.id).isEdited) {
         const result = dialog.showMessageBoxSync((targetWindow as BrowserWindow), {
@@ -174,26 +172,39 @@ ipcMain.on('get-file-from-user', () => {
     if (filePaths) {
         openFile((targetWindow as BrowserWindow), filePaths[0]);
     }
-});
+}
 
-ipcMain.on('save-file',
-    (event, {filePath, filters, content}) => {
-        const currentWindow = BrowserWindow.getFocusedWindow();
+const saveFile = (data: any) => {
+    let {filePath} = data;
+    const {filters, content} = data;
+    const currentWindow = BrowserWindow.getFocusedWindow();
+    if (filePath) {
+        fs.writeFileSync(filePath, content);
+    } else {
+        filePath = dialog.showSaveDialogSync((currentWindow as BrowserWindow), {
+            title: 'Save file',
+            defaultPath: app.getPath('documents'),
+            filters
+        });
+
         if (filePath) {
             fs.writeFileSync(filePath, content);
-        } else {
-            filePath = dialog.showSaveDialogSync((currentWindow as BrowserWindow), {
-                title: 'Save file',
-                defaultPath: app.getPath('documents'),
-                filters
-            });
-
-            if (filePath) {
-                fs.writeFileSync(filePath, content);
-                openFile((currentWindow as BrowserWindow), filePath);
-            }
+            openFile((currentWindow as BrowserWindow), filePath);
         }
-    });
+    }
+}
+
+ipcMain.on('on-new-file', () => {
+    createWindow();
+});
+
+ipcMain.on('get-file-from-user', () => {
+    getFileFromUser();
+});
+
+ipcMain.on('save-file', (event, data) => {
+    saveFile(data);
+});
 
 ipcMain.on('update-ui', (event, {title, isEdited}) => {
     const currentWindow = BrowserWindow.getFocusedWindow();
@@ -202,3 +213,10 @@ ipcMain.on('update-ui', (event, {title, isEdited}) => {
     // macOS only
     currentWindow?.setDocumentEdited(isEdited);
 });
+
+export {
+    createWindow,
+    getFileFromUser,
+    openFile,
+    saveFile
+}

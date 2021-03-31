@@ -64,7 +64,7 @@ button:disabled {
   display: flex;
 }
 
-.raw-markdown, .rendered-html {
+.textarea, .rendered-html {
   min-height: 100%;
   max-width: 50%;
   flex-grow: 1;
@@ -73,7 +73,7 @@ button:disabled {
   font-size: 16px;
 }
 
-.raw-markdown {
+.textarea {
   border: 5px solid rgb(238, 252, 250);;
   background-color: rgb(238, 252, 250);
   font-family: monospace;

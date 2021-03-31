@@ -1,5 +1,4 @@
 import { contextBridge } from 'electron';
-
 import marked from 'marked';
 import createDOMPurify from 'dompurify';
 import { JSDOM } from 'jsdom';
@@ -9,6 +8,7 @@ import eol from 'eol';
 
 const windowEmulator = new JSDOM('').window;
 const DOMPurify = createDOMPurify((windowEmulator as unknown as Window));
+const appName = 'Geodan Knutsel TextEditor';
 
 contextBridge.exposeInMainWorld(
     'api',
@@ -31,6 +31,7 @@ contextBridge.exposeInMainWorld(
             const validChannels = [
                 'file-opened',
                 'file-changed',
+                'save-file'
             ];
             if (validChannels.includes(channel)) {
                 // Deliberately strip event as it includes `sender`
@@ -39,6 +40,7 @@ contextBridge.exposeInMainWorld(
         },
         path: {
             basename: path.basename
-        }
+        },
+        appName
     }
 )
