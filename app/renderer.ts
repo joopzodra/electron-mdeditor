@@ -90,3 +90,15 @@ api.receive('file-changed', (filePath: string, content: string) => {
 api.receive('save-file', () => {
     saveFile();
 });
+
+api.receive('compare-contents', (windowId: number, filePath: string, content: string) => {
+    const haveDifferentContents = api.eolAuto(content) !== currentContent;
+    if (haveDifferentContents) {
+        const data = {
+            windowId,
+            filePath,
+            content
+        }
+        api.send('have-different-contents', data);
+    }
+});

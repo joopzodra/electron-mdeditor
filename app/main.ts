@@ -94,7 +94,7 @@ const createWindow = () => {
         newWindow = null;
     });
 
-    windows.set(newWindow.id, {newWindow, isEdited: false});
+    windows.set(newWindow.id, {window: newWindow, isEdited: false});
     return newWindow;
 };
 
@@ -113,20 +113,7 @@ const startWatchingFile = (targetWindow: BrowserWindow, filePath: string) => {
     const watcher = fs.watch(filePath, (event) => {
         if (event === ('change')) {
             const content = fs.readFileSync(filePath, 'utf8');
-            const result = dialog.showMessageBoxSync(targetWindow, {
-                type: 'warning',
-                title: 'Load changes from disk?',
-                message: 'Another application has changed this file. Load changes?',
-                buttons: [
-                    'Yes',
-                    'Cancel',
-                ],
-                defaultId: 0,
-                cancelId: 1
-            });
-            if (result === 0) {
-                targetWindow.webContents.send('file-changed', filePath, content);
-            }
+            targetWindow.webContents.send('compare-contents', targetWindow.id, filePath, content);
         }
     });
 
@@ -209,9 +196,28 @@ ipcMain.on('save-file', (event, data) => {
 ipcMain.on('update-ui', (event, {title, isEdited}) => {
     const currentWindow = BrowserWindow.getFocusedWindow();
     currentWindow?.setTitle(title);
-    windows.set(currentWindow?.id, {currentWindow, isEdited});
+    windows.set(currentWindow?.id, {window: currentWindow, isEdited});
     // macOS only
     currentWindow?.setDocumentEdited(isEdited);
+});
+
+ipcMain.on('have-different-contents', (event, data) => {
+    const {windowId, filePath, content} = data;
+    const targetWindow = windows.get(windowId).window;
+    const result = dialog.showMessageBoxSync(targetWindow, {
+        type: 'warning',
+        title: 'Load changes from disk?',
+        message: 'Another application has changed this file. Load changes?',
+        buttons: [
+            'Yes',
+            'Cancel',
+        ],
+        defaultId: 0,
+        cancelId: 1
+    });
+    if (result === 0) {
+        targetWindow.webContents.send('file-changed', filePath, content);
+    }
 });
 
 export {

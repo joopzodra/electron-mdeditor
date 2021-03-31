@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld(
                 'on-new-file',
                 'save-file',
                 'update-ui',
+                'have-different-contents'
             ];
             if (validChannels.includes(channel)) {
                 ipcRenderer.send(channel, data);
@@ -31,7 +32,8 @@ contextBridge.exposeInMainWorld(
             const validChannels = [
                 'file-opened',
                 'file-changed',
-                'save-file'
+                'save-file',
+                'compare-contents'
             ];
             if (validChannels.includes(channel)) {
                 // Deliberately strip event as it includes `sender`
