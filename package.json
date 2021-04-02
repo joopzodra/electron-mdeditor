@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm run compile && electron .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-ep": "electron-packager . ",
+    "build-ep": "electron-packager . --out=dist --asar --overwrite",
     "compile": "tsc && cp app/index.html build/ && cp app/style.css build/"
   },
   "keywords": [],
