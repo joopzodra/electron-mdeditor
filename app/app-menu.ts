@@ -1,14 +1,14 @@
 import { app, dialog, Menu, shell, BrowserWindow } from 'electron';
 import * as mainProcess from './main';
 
-const appName = 'Geodan Knutsel TextEditor';
+const appName = 'Geodan Knutsel MDEditor';
 
 const template = [
   {
     label: 'File',
     submenu: [
       {
-        label: 'New File',
+        label: 'New Window',
         accelerator: 'CommandOrControl+N',
         click() {
           mainProcess.createWindow();
@@ -99,10 +99,6 @@ const template = [
     label: 'Help',
     role: 'help',
     submenu: [
-      {
-        label: 'Visit Website',
-        click() { /* To be implemented */ }
-      },
       {
         label: 'Toggle Developer Tools',
         click(item: any, focusedWindow: BrowserWindow) {

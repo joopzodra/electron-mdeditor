@@ -56,7 +56,7 @@ const createWindow = () => {
         }
     });
 
-    newWindow.webContents.openDevTools();
+    // newWindow.webContents.openDevTools();
     newWindow.loadFile(`${__dirname}/index.html`);
 
     newWindow.once('ready-to-show', () => {

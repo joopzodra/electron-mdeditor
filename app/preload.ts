@@ -8,7 +8,7 @@ import eol from 'eol';
 
 const windowEmulator = new JSDOM('').window;
 const DOMPurify = createDOMPurify((windowEmulator as unknown as Window));
-const appName = 'Geodan Knutsel TextEditor';
+const appName = 'Geodan Knutsel MDEditor';
 
 contextBridge.exposeInMainWorld(
     'api',
