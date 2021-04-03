@@ -3,6 +3,12 @@ import path from 'path';
 import fs from 'fs';
 import appMenu from './app-menu';
 
+if(require('electron-squirrel-startup')) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return;
+}
+
 const windows = new Map();
 const openFiles = new Map();
 

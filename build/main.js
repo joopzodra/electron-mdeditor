@@ -8,6 +8,11 @@ const electron_1 = require("electron");
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 const app_menu_1 = __importDefault(require("./app-menu"));
+if (require('electron-squirrel-startup')) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return;
+}
 const windows = new Map();
 const openFiles = new Map();
 electron_1.app.setPath('documents', 'D:/joopr/Documents');
