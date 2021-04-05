@@ -164,6 +164,8 @@ const saveFile = (data) => {
             openFile(currentWindow, filePath);
         }
     }
+    windows.get(currentWindow === null || currentWindow === void 0 ? void 0 : currentWindow.id).isEdited = false;
+    currentWindow === null || currentWindow === void 0 ? void 0 : currentWindow.webContents.send('is-saved');
 };
 exports.saveFile = saveFile;
 electron_1.ipcMain.on('on-new-file', () => {

@@ -34,7 +34,8 @@ electron_1.contextBridge.exposeInMainWorld('api', {
             'file-opened',
             'file-changed',
             'save-file',
-            'compare-contents'
+            'compare-contents',
+            'is-saved'
         ];
         if (validChannels.includes(channel)) {
             // Deliberately strip event as it includes `sender`

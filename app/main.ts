@@ -185,6 +185,8 @@ const saveFile = (data: any) => {
             openFile((currentWindow as BrowserWindow), filePath);
         }
     }
+    windows.get(currentWindow?.id).isEdited = false;
+    currentWindow?.webContents.send('is-saved');
 }
 
 ipcMain.on('on-new-file', () => {

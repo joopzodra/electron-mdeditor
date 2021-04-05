@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self';">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Geodan Knutsel MDEditor</title>
     <link rel="stylesheet" href="style.css" type="text/css">
-  </head>
-  <body>
-
+</head>
+<body>
+<div id="app-container">
     <section class="controls">
-      <button id="new-file">New Window</button>
-      <button id="open-file">Open File</button>
-      <button id="save-file" disabled>Save File</button>
-      <button id="revert" disabled>Revert</button>
+        <button id="new-file">New Window</button>
+        <button id="open-file">Open File</button>
+        <button id="save-file" disabled>Save File</button>
+        <button id="revert" disabled>Revert</button>
     </section>
 
     <section class="content">
-      <label for="textarea" hidden>Plain Text</label>
-      <textarea class="textarea" id="textarea"></textarea>
-      <div class="rendered-html" id="html"></div>
+        <label for="textarea" hidden>Plain Text</label>
+        <textarea class="textarea" id="textarea"></textarea>
+        <div class="rendered-html" id="html"></div>
     </section>
-
-  </body>
-  <script src="renderer.js"></script>
+</div>
+</body>
+<script src="renderer.js"></script>
 </html>

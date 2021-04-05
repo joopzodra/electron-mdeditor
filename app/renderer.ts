@@ -4,7 +4,6 @@ const newFileButton = document.querySelector('#new-file');
 const openFileButton = document.querySelector('#open-file');
 const saveFileButton = document.querySelector('#save-file');
 const revertButton = document.querySelector('#revert');
-const showFileButton = document.querySelector('#show-file');
 
 declare const api: any;
 
@@ -101,4 +100,8 @@ api.receive('compare-contents', (windowId: number, filePath: string, content: st
         }
         api.send('have-different-contents', data);
     }
+});
+
+api.receive('is-saved', () => {
+   updateUserInterface(false);
 });

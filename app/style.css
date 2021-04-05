@@ -22,6 +22,14 @@ body, input {
   font: menu;
 }
 
+#app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-width: 100vw;
+  position: relative;
+}
+
 textarea, input, div, button {
   outline: none;
   margin: 0;
@@ -30,6 +38,7 @@ textarea, input, div, button {
 .controls {
   background-color: rgb(217, 241, 238);
   padding: 10px 10px 10px 10px;
+  flex: 0 1 auto;
 }
 
 button {
@@ -51,16 +60,8 @@ button:disabled {
   background-color: rgb(196, 204, 202);
 }
 
-.container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  min-width: 100vw;
-  position: relative;
-}
-
 .content {
-  height: 100vh;
+  flex: 1 1 auto;
   display: flex;
 }
 
@@ -69,7 +70,7 @@ button:disabled {
   max-width: 50%;
   flex-grow: 1;
   padding: 1em;
-  overflow: scroll;
+  overflow: auto;
   font-size: 16px;
 }
 
@@ -77,4 +78,5 @@ button:disabled {
   border: 5px solid rgb(238, 252, 250);;
   background-color: rgb(238, 252, 250);
   font-family: monospace;
+  resize: none;
 }

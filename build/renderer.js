@@ -5,7 +5,6 @@ const newFileButton = document.querySelector('#new-file');
 const openFileButton = document.querySelector('#open-file');
 const saveFileButton = document.querySelector('#save-file');
 const revertButton = document.querySelector('#revert');
-const showFileButton = document.querySelector('#show-file');
 let filePath = null;
 let originalContent = '';
 let currentContent = '';
@@ -83,5 +82,8 @@ api.receive('compare-contents', (windowId, filePath, content) => {
         };
         api.send('have-different-contents', data);
     }
+});
+api.receive('is-saved', () => {
+    updateUserInterface(false);
 });
 //# sourceMappingURL=renderer.js.map
